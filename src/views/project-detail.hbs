@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Day 11 - Routing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+      body {
+        background-color: #e3e7eb;
+        font-family: 'Poppins', sans-serif;
+      }
+    </style>
+
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-body-light px-5" style="background-color: #f4f3f3;">
+      <div class="container-fluid gap-3">
+        <a class="navbar-brand" href="/">
+          <img src="/assets/img/dumbways.png" alt="logo" width="40">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fw-bold active" href="/project">My Project</a>
+            </li>
+          </ul>
+            <a href="/contact" class="btn btn-sm btn-secondary rounded-3" style="color: white; background-color: #111727">Contact Me</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-5">
+      <h2 class="mb-5 text-center fw-bold">{{id}}</h2>
+      <div class="row d-flex">
+        <div class="col-lg-7">
+            <img src="https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" class="img-fluid" alt="Ravi Farhan">
+        </div>
+        <div class="col-lg-5 px-5">
+            <h5 class="mb-3">Duration</h5>
+            <div class="d-flex mb-3 gap-3">
+                <i class="fa-solid fa-calendar-days fa-2x"></i>
+                <p class="my-2">12 Jan 2024 - 12 Feb 2024</p>
+            </div>
+            <div class="d-flex gap-3">
+                <i class="fa-solid fa-clock fa-2x"></i>
+                <p class="my-2">1 month</p>
+            </div>
+            <h5 class="mt-5">Technologies</h5>
+            <div class="d-flex my-3 gap-4">
+                <i class="fa-brands fa-react fa-2x"></i>
+                <p class="my-2">React Js</p>
+                <i class="fa-brands fa-vuejs fa-2x"></i>
+                <p class="my-2">Vue Js</p>
+            </div>
+            <div class="d-flex mb-3 gap-3">
+                <i class="fa-brands fa-node fa-2x"></i>
+                <p class="my-1">Node Js</p>
+                <i class="fa-brands fa-golang fa-2x"></i>
+                <p class="my-1">Golang</p>
+            </div>
+        </div>
+        <div class="mt-5">
+            <p style="text-align: justify">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur laboriosam labore harum esse obcaecati cupiditate aliquid ab earum quia dolorem minima et ex quo dignissimos doloremque sunt repellendus, numquam similique quaerat nisi sed? Explicabo asperiores quae, perspiciatis suscipit velit ipsa. Repellendus voluptatum, tenetur ipsum accusamus animi, nam, voluptatem beatae facilis magnam quia accusantium. Quasi, quos sapiente odio temporibus commodi dolores. Ab consequatur omnis tenetur error cumque eligendi quia, asperiores, quo non voluptate id suscipit! Corporis qui magni, deleniti assumenda delectus tempore? Reiciendis quam impedit assumenda culpa tempora modi numquam aperiam aspernatur. Quaerat deleniti nobis ducimus minima velit repudiandae voluptate adipisci atque incidunt veritatis soluta quo, qui labore in tempore neque cum animi modi! Iusto ducimus sapiente facere placeat aut. Quo corrupti adipisci ullam amet autem eum quaerat qui saepe officiis voluptatum iusto voluptates impedit reprehenderit ex modi maiores perspiciatis, optio reiciendis magnam ad neque voluptate necessitatibus. Provident voluptas reprehenderit eos aspernatur rerum corrupti nam, nemo voluptatum, minima esse consectetur debitis dolorum autem impedit et quibusdam culpa quia ex doloribus? Dolor, fuga. Dolorem, delectus placeat. Quibusdam beatae velit distinctio amet placeat sit sed officiis eligendi corrupti, magni eveniet perspiciatis id provident aut impedit enim voluptatibus doloribus aspernatur incidunt nihil accusamus nostrum animi sapiente. Adipisci totam quo, praesentium quas quae ea consectetur mollitia fuga nulla laudantium recusandae minus autem consequatur sit nemo magnam quod, in exercitationem voluptatibus ipsum quibusdam earum fugiat illo veniam? Dolorum ipsam iusto vitae dignissimos fugiat illo doloribus molestiae eos delectus vel officia culpa suscipit ea, enim quae. Omnis delectus doloremque consequuntur officiis soluta vel obcaecati labore eveniet dolor ad voluptatibus cum debitis commodi, possimus, laborum culpa? Velit magni quo odit ea possimus, aperiam laboriosam veniam minima suscipit. Error expedita voluptates debitis et id accusantium repellendus quia. Soluta eaque veritatis, magnam quaerat aliquam aspernatur architecto explicabo doloremque sequi expedita?</p> 
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/boo2tstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+  </body>
+</html>
