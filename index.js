@@ -95,13 +95,14 @@ function updateProject(req, res) {
     }
 
     const image = "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg" //gambar default
+    
     // Temukan indeks data yang akan diupdate berdasarkan ID
-    const dataIndex = data.findIndex(item => item.id === parseInt(id));
+    const dataIndex = data.findIndex(item => item.id == id);
 
     if (dataIndex !== -1) {
         // Update data jika ID ditemukan menggunakan data.splice
         const updatedData = {
-            id: parseInt(id),
+            id,
             projectname,
             description,
             year,
