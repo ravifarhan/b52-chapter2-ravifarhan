@@ -43,11 +43,11 @@
     </nav>
 
     <div class="container w-50 mt-5" >
-      <h3 class="mb-5 text-center fw-bold"> EDIT PROJECT {{data.projectname}}</h3>
+      <h3 class="mb-5 text-center fw-bold"> EDIT PROJECT {{data.project_name}}</h3>
       <form action="/edit-project/{{ data.id }}" method="post" class="row g-4">
             <div class="col-12">
               <label for="project-name" class="form-label fw-bold">Project Name</label>
-              <input type="text" class="form-control shadow-lg" id="project-name" name="projectname" value="{{data.projectname}}">
+              <input type="text" class="form-control shadow-lg" id="project_name" name="project_name" value="{{data.project_name}}">
             </div>
             <div class="col-md-6">
               <label for="star-date" class="form-label fw-bold">Star Date</label>
