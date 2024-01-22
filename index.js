@@ -1,5 +1,8 @@
 const express = require('express')
 const app = express()
+const bcrypt = require('bcrypt')
+const session = require('express-session')
+const flash = require('express-flash')
 const port = 3000
 
 
@@ -10,7 +13,20 @@ const sequelize = new Sequelize('personal_web', 'postgres', 'karapay02', {
 })
 
 const { Projects } = require('./models')
+const { Users } = require('./models')
 
+app.use(session({
+    cookie: {
+        httpOnly: true,
+        secure: false,
+        maxAge: 2 * 60 * 60 * 1000
+    },
+    resave: false,
+    store: session.MemoryStore(),
+    secret: 'session_storage',
+    saveUninitialized: true
+}))
+app.use(flash())
 
 
 app.set('view engine', 'hbs')
@@ -20,6 +36,10 @@ app.use('/assets', express.static('src/assets'))
 app.use(express.urlencoded({ extended: false }))
 
 app.get('/', home)
+app.get('/register', formRegister)
+app.post('/register', addRegister)
+app.get('/login', formLogin)
+app.post('/login', isLogin)
 app.get('/contact', contact)
 app.get('/add-project', addProject)
 app.post('/add-project', addPostProject)
@@ -27,31 +47,21 @@ app.get('/detail-project/:id', detailProject)
 app.get('/edit-project/:id', editProject)
 app.post('/edit-project/:id', updateProject)
 app.get('/delete/:id', deleteProject)
+app.get('/logout', logoutUser)
 
 
 // const data = []
 
-// function home(req, res) {
-//     res.render('index', {data, title: 'Home'}) 
-// }
-
-// async function home(req, res) {
-//     try {
-//       await sequelize.authenticate();
-//       console.log('Koneksi Sukses');
-//       res.render('index', { data, title: 'Home' });
-//     } catch (error) {
-//       console.error('Unable to connect to the database:', error);
-//       res.status(500).send('Internal Server Error'); // Menambahkan respons kesalahan jika koneksi gagal
-//     }
-//   }
-  
-//   module.exports = home;
 
 async function home(req, res) {
     try {
       const data = await Projects.findAll()
-      res.render('index', { data, title: 'Home' });
+      res.render('index',{
+        data,
+        title: 'Home',
+        isLogin: req.session.isLogin,
+        user: req.session.user
+    })
     } catch (error) {
       console.error('Error rendering home page:', error);
       res.status(500).send('Internal Server Error');
@@ -65,21 +75,91 @@ async function home(req, res) {
 // async function home(req, res) {
 //    try {
     
-//     const [results] = await sequelize.query('SELECT * FROM "Projects"')
+//     const [data] = await sequelize.query('SELECT * FROM "Projects"')
     
-//     res.render('index', { results, title: 'Home' })
+//     res.render('index', { data, title: 'Home' })
 //    } catch (error) {
 //     console.error(error)
 //    }
 // }
 
+function formRegister(req, res) {
+    if (req.session.isLogin) {
+        res.redirect('/')
+    }
+    res.render('register', { title: 'Register Account' })
+}
+
+async function addRegister(req, res) {
+    try {
+        const { firstName, lastName, email, password } = req.body
+        const salt = 10
+        const hashPassword = await bcrypt.hash(password, salt)
+        const data = {
+            firstName,
+            lastName,
+            email,
+            password: hashPassword
+        }
+        await Users.create(data)
+        res.redirect('/login')
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function formLogin(req, res) {
+    if (req.session.isLogin) {
+        res.redirect('/')
+    }
+    res.render('login', { title: 'Login Account' })
+}
+
+async function isLogin(req, res) {
+    try {
+        const { email, password } = req.body
+        const checkEmail = await Users.findOne({ where: { email: email } })
+        if (!checkEmail){
+            req.flash('failed', 'Email not registered')
+            res.redirect('/login')
+        }
+        const checkPassword = await bcrypt.compare(password, checkEmail.password)
+        if (!checkPassword){
+            req.flash('failed', 'Wrong password')
+            res.redirect('/login')
+        } else {
+            req.session.isLogin = true
+            req.session.user = checkEmail.firstName
+            req.flash('success', 'Welcome Bro')
+            res.redirect('/')
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+function logoutUser(req, res) {
+    req.session.destroy()
+    res.redirect('/login')    
+}
 
 function contact(req, res) {
-    res.render('contact', {title: 'Contact'})
+    res.render('contact', {
+        title: 'Contact',
+        isLogin: req.session.isLogin,
+        user: req.session.user
+    })
 }
 
 function addProject(req, res) {
-    res.render('add-project', {title: 'Add Project'})
+    if (!req.session.isLogin) {
+        res.redirect('/login')
+    }
+    res.render('add-project', {
+        title: 'Add Project',
+        isLogin: req.session.isLogin,
+        user: req.session.user
+    })
 }
 
 // function addPostProject(req, res) {
@@ -109,9 +189,10 @@ function addProject(req, res) {
 
 //     res.redirect('/')
 // }
+
+
 async function addPostProject(req, res) {
     try {
-        const date = new Date()
         const startDate = new Date(req.body.startdate)
         const endDate = new Date(req.body.enddate)
         const diffTime = endDate - startDate
@@ -146,7 +227,6 @@ async function addPostProject(req, res) {
     }
 }
 
-
 // function detailProject(req, res) {
 //     const { id } = req.params
 //     const dataDetail = data[id]
@@ -159,15 +239,28 @@ async function detailProject(req, res) {
     if (!data) {  //data===null
         return res.status(404).send('Project not found')
     } else {
-      res.render('detail-project', { data, title: 'Detail Project' })
+        res.render('detail-project', {
+            data,
+            title: 'Detail Project',
+            isLogin: req.session.isLogin,
+            user: req.session.user
+        })
     }
     
 }
 async function editProject(req, res) {
+    if (!req.session.isLogin) {
+        res.redirect('/login')
+    }
     const { id } = req.params
     const data = await Projects.findByPk(id);
 
-    res.render('edit-project', { data, title: 'Edit Project' })
+    res.render('edit-project', {
+        data,
+        title: 'Edit Project',
+        isLogin: req.session.isLogin,
+        user: req.session.user
+    })
 }
 
 // function updateProject(req, res) {
@@ -270,19 +363,22 @@ async function updateProject(req, res) {
 // }
 
 async function deleteProject(req, res) {
-    const { id } = req.params;
-
-    try {
-        await Projects.destroy({
-            where: {
-                id: id
-            }
-        });
-        res.redirect('/');
-    } catch (error) {
-        console.error("Error deleting project:", error);
-        res.status(500).send("Internal Server Error");
+    if (req.session.isLogin) {
+        const { id } = req.params;
+        
+        try {
+            await Projects.destroy({
+                where: {
+                    id: id
+                }
+            });
+            res.redirect('/');
+        } catch (error) {
+            console.error("Error deleting project:", error);
+            res.status(500).send("Internal Server Error");
+        }
     }
+    res.redirect('/login')
 }
 
 
