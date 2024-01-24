@@ -93,13 +93,13 @@
       <h2 class="text-center fw-bold mb-5">MY PROJECT</h2>
       <div class="row justify-content-center gap-3">
       {{#each data}}
-        <div class="card shadow-lg rounded" style="width: 23rem;">
-          <img src="{{image}}" class="card-img-top rounded" alt="">
+        <div class="card shadow-lg rounded p-3" style="width: 23rem;">
+          <img src="/assets/file/{{image}}" class="card-img-top rounded" alt="Project Image">
           <div class="card-body">
             <h5 class="card-title">{{project_name}}</h5>
             <p class="card-text mt-1" style="color: #514a4a;"><small>durasi : {{duration}}</small></p>
             <p class="card-text">{{description}}</p>
-            <div class="d-flex gap-2 mt-4">
+            <div class="d-flex gap-2 mt-2">
               {{#if nodejs}}
                 <i class="fa-brands fa-node fa-2x"></i>
               {{/if}}
@@ -113,6 +113,7 @@
                 <i class="fa-brands fa-vuejs fa-2x"></i>
               {{/if}}
             </div>
+            <p class="card-text mt-1 fst-italic"><small>Project By : {{User.firstName}} {{User.lastName}}</small></p>
             <div class="d-flex gap-2 mt-4">
             {{#if ../isLogin}} {{!//agar bisa diakses setelah login diluar #each }}
               <a href="/detail-project/{{id}}" target="_blank" class="btn btn-sm btn-secondary rounded-3 fw-bold w-100" style="color: white; background-color: #111727" >detail</a>

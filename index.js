@@ -3,17 +3,23 @@ const app = express()
 const bcrypt = require('bcrypt')
 const session = require('express-session')
 const flash = require('express-flash')
+const fs = require('fs').promises
+const path = require('path')
 const port = 3000
 
+const moment = require('moment');
+require('moment/locale/id');
 
-const { Sequelize } = require('sequelize')
-const sequelize = new Sequelize('personal_web', 'postgres', 'karapay02', {
-    host: 'localhost',
-    dialect: 'postgres'
-})
+const upload = require('./middleware/uploadFile')
+
+const { Sequelize, where } = require('sequelize')
+// const sequelize = new Sequelize('personal_web', 'postgres', 'karapay02', {
+//     host: 'localhost',
+//     dialect: 'postgres'
+// })
 
 const { Projects } = require('./models')
-const { Users } = require('./models')
+const { User } = require('./models')
 
 app.use(session({
     cookie: {
@@ -42,25 +48,37 @@ app.get('/login', formLogin)
 app.post('/login', isLogin)
 app.get('/contact', contact)
 app.get('/add-project', addProject)
-app.post('/add-project', addPostProject)
+app.post('/add-project',upload.single('image'), addPostProject)
 app.get('/detail-project/:id', detailProject)
 app.get('/edit-project/:id', editProject)
-app.post('/edit-project/:id', updateProject)
+app.post('/edit-project/:id',upload.single('image'), updateProject)
 app.get('/delete/:id', deleteProject)
 app.get('/logout', logoutUser)
 
 
-// const data = []
-
 
 async function home(req, res) {
     try {
-      const data = await Projects.findAll()
+
+    let data;
+    if (req.session.isLogin) {
+        data = await Projects.findAll({
+            where: {
+                userId: req.session.userId,
+            },
+            include: User
+        })
+    } else {
+        data = await Projects.findAll({
+            include: User
+        });
+    }
       res.render('index',{
         data,
         title: 'Home',
         isLogin: req.session.isLogin,
-        user: req.session.user
+        user: req.session.user,
+        
     })
     } catch (error) {
       console.error('Error rendering home page:', error);
@@ -72,16 +90,6 @@ async function home(req, res) {
     home,
   };
 
-// async function home(req, res) {
-//    try {
-    
-//     const [data] = await sequelize.query('SELECT * FROM "Projects"')
-    
-//     res.render('index', { data, title: 'Home' })
-//    } catch (error) {
-//     console.error(error)
-//    }
-// }
 
 function formRegister(req, res) {
     if (req.session.isLogin) {
@@ -101,7 +109,7 @@ async function addRegister(req, res) {
             email,
             password: hashPassword
         }
-        await Users.create(data)
+        await User.create(data)
         res.redirect('/login')
     } catch (error) {
         console.error(error)
@@ -118,7 +126,7 @@ function formLogin(req, res) {
 async function isLogin(req, res) {
     try {
         const { email, password } = req.body
-        const checkEmail = await Users.findOne({ where: { email: email } })
+        const checkEmail = await User.findOne({ where: { email: email } })
         if (!checkEmail){
             req.flash('failed', 'Email not registered')
             res.redirect('/login')
@@ -130,6 +138,8 @@ async function isLogin(req, res) {
         } else {
             req.session.isLogin = true
             req.session.user = checkEmail.firstName
+            req.session.userId = checkEmail.id
+            
             req.flash('success', 'Welcome Bro')
             res.redirect('/')
         }
@@ -162,34 +172,6 @@ function addProject(req, res) {
     })
 }
 
-// function addPostProject(req, res) {
-//     const date = new Date()
-//     const year = date.getFullYear()
-//     const startDate = new Date(req.body.startdate)
-//     const endDate = new Date(req.body.enddate)
-//     const diffTime = endDate - startDate
-
-//     let duration = diffTime / (1000 * 60 * 60 * 24)
-
-//     let durationResult = ''
-//     if (duration > 29){
-//         duration = Math.floor(duration / 30)
-//         durationResult = duration + " Bulan"
-//     }else{
-//         durationResult = duration + " Hari"
-//     }
-
-//     const image = "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg"
-    
-
-//     const {projectname, description, nodejs, golang, vuejs, reactjs, startdate, enddate  } = req.body
-//     const id = data.length + 1;
-
-//     data.push({id, projectname, description, nodejs, golang, vuejs, reactjs, year , image , startdate, enddate, durationResult })
-
-//     res.redirect('/')
-// }
-
 
 async function addPostProject(req, res) {
     try {
@@ -206,8 +188,6 @@ async function addPostProject(req, res) {
             duration = countDuration + " Hari"
         }
 
-        const image = "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg"
-
         const dataProject = {
             project_name: req.body.project_name,
             description: req.body.description,
@@ -217,7 +197,8 @@ async function addPostProject(req, res) {
             golang: req.body.golang,
             vuejs: req.body.vuejs,
             reactjs: req.body.reactjs,
-            image: image,
+            image: req.file.filename,
+            userId: req.session.userId,
             duration: duration
         }
         await Projects.create(dataProject)
@@ -227,23 +208,25 @@ async function addPostProject(req, res) {
     }
 }
 
-// function detailProject(req, res) {
-//     const { id } = req.params
-//     const dataDetail = data[id]
 
-//     res.render('detail-project', { data: dataDetail, title: 'Detail Project' })
-// }
 async function detailProject(req, res) {
     const { id } = req.params
-    const data = await Projects.findByPk(id);
+    const data = await Projects.findByPk(id)
+    const dataUser = await User.findByPk(data.userId)
+
+    const formatStartdate = moment(data.startdate).format('DD MMMM YYYY')
+    const formatEnddate = moment(data.enddate).format('DD MMMM YYYY')
     if (!data) {  //data===null
         return res.status(404).send('Project not found')
     } else {
         res.render('detail-project', {
             data,
+            dataUser,
+            formatStartdate,
+            formatEnddate,
             title: 'Detail Project',
             isLogin: req.session.isLogin,
-            user: req.session.user
+            user: req.session.user,
         })
     }
     
@@ -263,59 +246,21 @@ async function editProject(req, res) {
     })
 }
 
-// function updateProject(req, res) {
-//     const { id } = req.params;
-//     const { projectname, description, nodejs, golang, vuejs, reactjs, startdate, enddate } = req.body;
 
-//     const year = new Date().getFullYear();
-//     const startDate = new Date(startdate);
-//     const endDate = new Date(enddate);
-//     const diffTime = endDate - startDate;
-
-//     let duration = diffTime / (1000 * 60 * 60 * 24);
-
-//     let durationResult = '';
-//     if (duration > 29){
-//         duration = Math.floor(duration / 30);
-//         durationResult = duration + " Bulan";
-//     } else {
-//         durationResult = duration + " Hari";
-//     }
-
-//     const image = "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg" //gambar default
-    
-//     // Temukan indeks data yang akan diupdate berdasarkan ID
-//     const dataIndex = data.findIndex(item => item.id == id);
-
-//     if (dataIndex !== -1) {
-//         // Update data jika ID ditemukan menggunakan data.splice
-//         const updatedData = {
-//             id,
-//             projectname,
-//             description,
-//             year,
-//             image,
-//             nodejs,
-//             golang,
-//             vuejs,
-//             reactjs,
-//             startdate,
-//             enddate,
-//             durationResult
-//         };
-
-//         // Update data
-//         data.splice(dataIndex, 1, updatedData);
-//     }
-
-//     res.redirect('/');
-// }
 async function updateProject(req, res) {
     try {
-            const { id } = req.params;
-        
-            const startDate = new Date(req.body.startdate)
-            const endDate = new Date(req.body.enddate)
+        const { id } = req.params;
+
+        const dataProject = await Projects.findOne({
+            where: {
+                id : id
+            }
+        })
+        if (dataProject){
+            const { project_name, description, startdate, enddate, nodejs, golang, vuejs, reactjs } = req.body
+
+            const startDate = new Date(startdate)
+            const endDate = new Date(enddate)
             const diffTime = endDate - startDate
         
             let countDuration = diffTime / (1000 * 60 * 60 * 24)
@@ -326,26 +271,46 @@ async function updateProject(req, res) {
             }else{
                 duration = countDuration + " Hari"
             }
-        
-            const image = "https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg" //gambar default
-        
-            const dataProject = {
-                project_name: req.body.project_name,
-                description: req.body.description,
-                startdate: req.body.startdate,
-                enddate: req.body.enddate,
-                nodejs: req.body.nodejs,
-                golang: req.body.golang,
-                vuejs: req.body.vuejs,
-                reactjs: req.body.reactjs,
-                image: image,
-                duration: duration
-            }
-            await Projects.update(dataProject, {
-                where: {
-                    id: id
+
+            if (req.file) {
+                // ambil nama file gambar
+                image = req.file.filename;
+              
+                // Hapus file lama jika ada
+                if (dataProject.image) {
+                  const imageDirectory = path.join('src/assets/file', dataProject.image)
+                  try {
+                    await fs.unlink(imageDirectory)
+                  } catch (error) {
+                    console.error("Error deleting image:", error);
+                  }
                 }
-            })
+              } else {
+                // Jika tidak ada file baru, gunakan file lama
+                image = dataProject.image; 
+              }
+              
+              // Simpan file yang baru
+              const newImageFilePath = path.join('src/assets/file', image)
+              console.log('newImage:', newImageFilePath)
+              
+            
+            await Projects.update({
+                project_name,
+                description,
+                startdate,
+                enddate,
+                nodejs,
+                golang,
+                vuejs,
+                reactjs,
+                duration,
+                image
+            },{where: {id:id}})
+        }else{
+            return res.status(404).send('Project not found');
+        }
+
             res.redirect('/')
     } catch (error) {
     console.error("Error updating project:", error);
@@ -354,24 +319,33 @@ async function updateProject(req, res) {
 }
 
 
-
-// function deleteProject(req, res) {
-//     const { id } = req.params
-
-//     data.splice(id, 1)
-//     res.redirect('/')
-// }
-
 async function deleteProject(req, res) {
     if (req.session.isLogin) {
         const { id } = req.params;
         
         try {
+            // Mendapatkan nama file gambar dari database
+            const project = await Projects.findOne({
+                where: {
+                    id: id
+                }
+            });
+
+            if (!project) {
+                return res.status(404).send('Project not found');
+            }
+            // Path file gambar
+            const imagePath = `src/assets/file/${project.image}`;
+
+            // Menghapus file gambar
+            await fs.unlink(imagePath);
+
             await Projects.destroy({
                 where: {
                     id: id
                 }
             });
+
             res.redirect('/');
         } catch (error) {
             console.error("Error deleting project:", error);

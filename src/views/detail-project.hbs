@@ -61,16 +61,17 @@
     </nav>
 
     <div class="container my-5">
-      <h2 class="mb-5 text-center fw-bold">{{data.project_name}}</h2>
+      <h2 class="mb-2 text-center fw-bold">{{data.project_name}}</h2>
+            <p class="text-center fw-bold fst-italic">Project by : {{dataUser.firstName}} {{dataUser.lastName}}</p>
       <div class="row d-flex">
         <div class="col-lg-7">
-            <img src="{{data.image}}" class="img-fluid" alt="Ravi Farhan">
+            <img src="/assets/file/{{data.image}}" class="img-fluid" alt="Ravi Farhan">
         </div>
         <div class="col-lg-5 px-5">
             <h5 class="mb-3">Duration</h5>
             <div class="d-flex mb-3 gap-3">
                 <i class="fa-solid fa-calendar-days fa-2x"></i>
-                <p class="my-2">{{data.startdate}} - {{data.enddate}}</p>
+                <p class="my-2">{{formatStartdate}} - {{formatEnddate}}</p>
             </div>
             <div class="d-flex gap-3">
                 <i class="fa-solid fa-clock fa-2x"></i>

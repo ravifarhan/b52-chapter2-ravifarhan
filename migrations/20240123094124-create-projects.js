@@ -18,11 +18,11 @@ module.exports = {
       enddate: {
         type: Sequelize.DATEONLY
       },
-      description: {
-        type: Sequelize.TEXT
-      },
       duration: {
         type: Sequelize.STRING
+      },
+      description: {
+        type: Sequelize.TEXT
       },
       nodejs: {
         type: Sequelize.STRING
@@ -38,6 +38,15 @@ module.exports = {
       },
       image: {
         type: Sequelize.STRING
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       createdAt: {
         allowNull: false,

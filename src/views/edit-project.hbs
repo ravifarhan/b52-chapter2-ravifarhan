@@ -62,10 +62,10 @@
     </nav>
 
     <div class="container w-50 mt-5" >
-      <h3 class="mb-5 text-center fw-bold"> EDIT PROJECT {{data.project_name}}</h3>
-      <form action="/edit-project/{{ data.id }}" method="post" class="row g-4">
+      <h3 class="mb-5 text-center fw-bold"> EDIT PROJECT</h3>
+      <form action="/edit-project/{{ data.id }}" method="post" class="row g-4" enctype="multipart/form-data">
             <div class="col-12">
-              <label for="project-name" class="form-label fw-bold">Project Name</label>
+              <label for="project-name" class="form-label fw-bold">Project Name </label>
               <input type="text" class="form-control shadow-lg" id="project_name" name="project_name" value="{{data.project_name}}">
             </div>
             <div class="col-md-6">
@@ -110,10 +110,10 @@
               </div>
             </div>
             <div class="mb-1">
-                <label for="upload-image" class="form-label fw-bold">Upload Image</label>
+                <label for="image" class="form-label fw-bold">Upload Image {{data.image}} </label>
                 <div class="input-group">
-                  <input type="file" class="form-control" id="upload-image">
-                    <label class="input-group-text" for="upload-image"><i class="fa-solid fa-paperclip"></i></label>
+                  <input type="file" class="form-control" id="image" name="image"/>
+                    <label class="input-group-text" for="image"><i class="fa-solid fa-paperclip"></i></label>
                 </div>
             </div>
             <div class="d-flex col-12 justify-content-end">
