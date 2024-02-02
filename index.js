@@ -13,10 +13,10 @@ require('moment/locale/id');
 const upload = require('./middleware/uploadFile')
 
 const { Sequelize, where } = require('sequelize')
-// const sequelize = new Sequelize('personal_web', 'postgres', 'karapay02', {
-//     host: 'localhost',
-//     dialect: 'postgres'
-// })
+const sequelize = new Sequelize('personal_web', 'postgres', 'karapay02', {
+    host: 'localhost',
+    dialect: 'postgres'
+})
 
 const { Projects } = require('./models')
 const { User } = require('./models')
@@ -59,7 +59,14 @@ app.get('/logout', logoutUser)
 
 async function home(req, res) {
     try {
-
+        // let query;
+        // if (req.session.isLogin) {
+        //     query = `SELECT * FROM "Projects" WHERE "userId" = ${req.session.userId}`;
+        // } else {
+        //     query = `SELECT * FROM "Projects"`;
+        // }
+        // const [data] = await sequelize.query(query); 
+    // SELECT * FROM  projects where userId = userId LEFT JOIN User ON Projects.userId
     let data;
     if (req.session.isLogin) {
         data = await Projects.findAll({
